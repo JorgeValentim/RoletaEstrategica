@@ -1,12 +1,91 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Roleta Estratégica</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<html lang="pt-BR">
+<head>
+<!-- Base -->
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<!-- Título conciso + palavra-chave principal -->
+<title>Roleta Estratégica — estratégias de roleta, Martingale, Fibonacci e D’Alembert</title>
+<!-- Meta description (até ~155–160 chars) -->
+<meta content="Aprenda estratégias de roleta como Martingale, Fibonacci e D’Alembert. Simule banca, defina metas e jogue com responsabilidade." name="description"/>
+<!-- Palavras-chave (não ajudam muito no Google, mas não atrapalham) -->
+<meta content="roleta, estratégia de roleta, Martingale, Fibonacci, D'Alembert, simulador de roleta, gerenciamento de banca" name="keywords"/>
+<!-- Indexação -->
+<meta content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" name="robots"/>
+<link href="https://roletaestrategicabr.com.br/" rel="canonical"/>
+<!-- Idioma/região (ajuda em resultados internacionais) -->
+<link href="https://roletaestrategicabr.com.br/" hreflang="pt-BR" rel="alternate"/>
+<link href="https://roletaestrategicabr.com.br/" hreflang="x-default" rel="alternate"/>
+<!-- Cor do tema (PWA / Android) -->
+<meta content="#002647" name="theme-color"/>
+<!-- Favicons (gere variantes 16/32/180/512) -->
+<link href="/assets/favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="/assets/favicon-16.png" rel="icon" sizes="16x16" type="image/png"/>
+<link href="/assets/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+<link href="/site.webmanifest" rel="manifest"/>
+<!-- Preload de imagens e fontes -->
+<link as="image" href="/assets/logo-ajust.png" rel="preload"/>
+<link as="image" href="/assets/og-cover.jpg" rel="preload"/>
+<link as="image" href="/assets/favicon-32.png" rel="preload"/>
+<link as="image" href="/assets/favicon-16.png" rel="preload"/>
+<link crossorigin="" href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<!-- Open Graph (Facebook/LinkedIn/WhatsApp) -->
+<meta content="pt_BR" property="og:locale"/>
+<meta content="website" property="og:type"/>
+<meta content="https://roletaestrategicabr.com.br/" property="og:url"/>
+<meta content="Roleta Estratégica" property="og:site_name"/>
+<meta content="Roleta Estratégica — estratégias de roleta, Martingale, Fibonacci e D’Alembert" property="og:title"/>
+<meta content="Simule e aprenda estratégias de roleta com responsabilidade: Martingale, Fibonacci e D’Alembert. Ferramentas para metas e controle de banca." property="og:description"/>
+<!-- Imagem 1200x630, <2MB -->
+<meta content="https://roletaestrategicabr.com.br/assets/og-cover.jpg" property="og:image"/>
+<meta content="1200" property="og:image:width"/>
+<meta content="630" property="og:image:height"/>
+<!-- Twitter Cards -->
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="Roleta Estratégica — estratégias de roleta" name="twitter:title"/>
+<meta content="Simulador e guias de Martingale, Fibonacci e D’Alembert. Controle de banca com responsabilidade." name="twitter:description"/>
+<meta content="https://roletaestrategicabr.com.br/assets/og-cover.jpg" name="twitter:image"/>
+<!-- Dados estruturados: WebSite + SearchAction (ajuda sitelinks/caixinha de busca do Google) -->
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Roleta Estratégica",
+      "url": "https://roletaestrategicabr.com.br/",
+      "inLanguage": "pt-BR",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://roletaestrategicabr.com.br/?s={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+<!-- Dados estruturados: Organization (logo + contato) -->
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Roleta Estratégica",
+      "url": "https://roletaestrategicabr.com.br/",
+      "logo": "https://roletaestrategicabr.com.br/assets/logo-ajust.png",
+      "contactPoint": [{
+        "@type": "ContactPoint",
+        "email": "contato@roletaestrategicabr.com.br",
+        "contactType": "customer support",
+        "availableLanguage": ["Portuguese"]
+      }]
+    }
+    </script>
+<!-- Performance hints (ajuste se usar fontes/CDN específicas) -->
+<!-- <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin> -->
+<!-- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> -->
+<!-- <link rel="preload" as="image" href="/assets/og-cover.jpg"> -->
+<meta content="light" name="color-scheme"/></head>
+<body>
+<div id="root"></div>
+<script src="/src/main.jsx" type="module"></script>
+</body>
 </html>

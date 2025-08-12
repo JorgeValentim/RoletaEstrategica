@@ -20,16 +20,9 @@ body {
   align-items: center;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
+.logo{ height:44px; width:auto; display:block; }
 
-.logo img {
-  height: 40px;
-  margin-right: 10px;
-}
+.logo-btn{ display:flex; align-items:center; gap:10px; }
 
 .hamburger {
   display: none;
@@ -173,4 +166,24 @@ body {
   padding: 10px;
   text-align: center;
   font-size: 14px;
+}
+
+/* Logo responsivo */
+@media (max-width: 768px){
+  .logo{ height:36px; }
+}
+
+/* Header layout fixes */
+.header{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* Nav alignment on desktop */
+@media (min-width: 769px){
+  .menu{
+    display:flex;
+    align-items:center;
+  }
 }
