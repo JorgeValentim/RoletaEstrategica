@@ -2,11 +2,18 @@ import React from 'react';
 import '../style.css';
 import RoletaImg2 from '../assets/Roleta_img_2.png';
 import RoletaImg1 from '../assets/Roleta_img_1.png';
+import AdBanner from '../components/AdBanner';
 
 function Sobre() {
   return (
     <div className="sobre-container">
       <h1>Sobre nós</h1>
+
+      {/* Google AdSense: topo */}
+      <div style={{ maxWidth: 970, margin: "12px auto 16px", textAlign: "center" }}>
+        <AdBanner slot="8827435481" style={{ minHeight: 90 }} />
+      </div>
+
 
       <section className="descricao">
         <p>
@@ -48,6 +55,12 @@ function Sobre() {
         <p>© 2025 Roleta Estratégica. Todos os direitos reservados.</p>
       </footer>
       */}
+      {/* Google AdSense: rodapé da página */}
+      <div style={{ maxWidth: 970, margin: "24px auto", textAlign: "center" }}>
+        <AdBanner slot="8827435481" style={{ minHeight: 90 }} />
+      </div>
+      // BOTTOM_ADS_MARK
+
     </div>
   );
 }

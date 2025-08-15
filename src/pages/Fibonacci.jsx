@@ -1,11 +1,18 @@
 import React from 'react';
 import '../style.css';
 import RoletaImg2 from '../assets/Roleta_img_2.png';
+import AdBanner from '../components/AdBanner';
 
 export default function Fibonacci() {
   return (
     <div className="sobre-container">
       <h1>Estratégia Fibonacci</h1>
+
+      {/* Google AdSense: topo */}
+      <div style={{ maxWidth: 970, margin: "12px auto 16px", textAlign: "center" }}>
+        <AdBanner slot="8827435481" style={{ minHeight: 90 }} />
+      </div>
+
 
       <section className="descricao">
         <p>
@@ -59,6 +66,12 @@ export default function Fibonacci() {
           </p>
         </div>
       </section>
+      {/* Google AdSense: rodapé da página */}
+      <div style={{ maxWidth: 970, margin: "24px auto", textAlign: "center" }}>
+        <AdBanner slot="8827435481" style={{ minHeight: 90 }} />
+      </div>
+      // BOTTOM_ADS_MARK
+
     </div>
   );
 }

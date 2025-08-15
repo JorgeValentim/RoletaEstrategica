@@ -245,6 +245,10 @@ function Home() {
           </h2>
         </div>
       )}
+      {/* Google AdSense: rodapé (Home) */}
+      <div style={{ maxWidth: 970, margin: "28px auto", textAlign: "center" }}>
+        <AdBanner slot="8827435481" style={{ minHeight: 90 }} />
+      </div>
     </main>
   );
 }
