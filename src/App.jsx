@@ -168,9 +168,24 @@ function Home() {
   return (
     <main className="main">
       <h1 className="welcome">🎯 Bem-vindo à Roleta Estratégica!</h1>
-      <p className="subtitle">
+      
+<p className="subtitle">
         Escolha sua estratégia, defina metas e jogue com responsabilidade.
       </p>
+
+      {/* Google AdSense banner_home_top */}
+      <div style={{ maxWidth: "100%", margin: "20px auto", textAlign: "center" }}>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8691122863343072"
+            crossOrigin="anonymous"></script>
+        <ins className="adsbygoogle"
+            style={{ display: "block" }}
+            data-ad-client="ca-pub-8691122863343072"
+            data-ad-slot="8827435481"
+            data-ad-format="auto"
+            data-full-width-responsive="true"></ins>
+        <script>{`(adsbygoogle = window.adsbygoogle || []).push({});`}</script>
+      </div>
+
 
       <div className="inputs">
         <input
