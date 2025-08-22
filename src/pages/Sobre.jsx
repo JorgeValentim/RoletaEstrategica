@@ -1,68 +1,59 @@
+
 import React from 'react';
 import '../style.css';
-import RoletaImg2 from '../assets/Roleta_img_2.png';
 import RoletaImg1 from '../assets/Roleta_img_1.png';
 import AdBanner from '../components/AdBanner';
 
-function Sobre() {
+export default function Sobre() {
   return (
-    <div className="sobre-container">
-      <h1>Sobre nós</h1>
+    <div>
+      {/* HERO */}
+      <section className="page-hero">
+        <div className="page-hero-inner">
+          <div>
+            <span className="badge">Institucional</span>
+            <h1>Sobre nós</h1>
+            <p className="lead">
+              O <strong>Roleta Estratégica</strong> foi criado para oferecer simuladores e guias
+              que ajudam você a jogar com disciplina, foco e responsabilidade.
+            </p>
+          </div>
+          {/* imagem com moldura de vidro */}
+          <div className="hero-figure-frame">
+            <img className="page-hero-figure" src={RoletaImg1} alt="Mesa de roleta com fichas" />
+          </div>
+        </div>
+      </section>
 
-      {/* Google AdSense: topo */}
-      <div style={{ maxWidth: 970, margin: "12px auto 16px", textAlign: "center" }}>
-        <AdBanner slot="8827435481" style={{ minHeight: 90 }} />
+      <div className="page-ads-top"><AdBanner slot="8827435481" style={{ minHeight: 90 }} /></div>
+
+      {/* CONTEÚDO */}
+      <div className="page-wrap">
+        <h2 className="section-title">Nossa proposta</h2>
+        <p>
+          Trazer conteúdo claro e ferramentas simples para que você possa entender as estratégias
+          mais famosas da roleta antes de arriscar seu dinheiro.
+        </p>
+
+        <h2 className="section-title">Como você pode apoiar</h2>
+        <p className="section-sub">Se este projeto te ajuda, considere apoiar:</p>
+        <div className="k-cards">
+          <div className="k-card">
+            <h3>💚 PIX</h3>
+            <p style={{marginTop:6}}><strong>apoio@roletaestrategicabr.com.br</strong></p>
+          </div>
+          <div className="k-card">
+            <h3>📧 Contato</h3>
+            <p style={{marginTop:6}}><strong>contato@roletaestrategicabr.com.br</strong></p>
+          </div>
+        </div>
+
+        <div className="callout">
+          <strong>Jogo responsável:</strong> conteúdo destinado a maiores de 18 anos. Não use apostas como renda principal.
+        </div>
+
+        <div className="page-ads-bottom"><AdBanner slot="8827435481" style={{ minHeight: 90 }} /></div>
       </div>
-
-
-      <section className="descricao">
-        <p>
-          Bem-vindo ao <strong>Roleta Estratégica</strong>, um projeto criado para ajudar você a <strong>lucrar com a roleta</strong> de forma consciente e inteligente. Aqui você encontrará estratégias que visam <strong>aumentar seus lucros</strong> e <strong>minimizar as perdas</strong>, evitando que você jogue dinheiro fora.
-        </p>
-        <div className="imagens-roleta">
-          <img src={RoletaImg1} alt="Mesa de roleta" />
-        </div>
-      </section>
-
-      <section className="apoio">
-        <h2>❤️ Apoie este projeto</h2>
-        <p>
-          Se este site está te ajudando, considere contribuir com qualquer valor para mantermos o projeto no ar e melhorar ainda mais a experiência:
-        </p>
-        <div className="destaque-box">
-          <strong>PIX:</strong> apoio@roletaestrategicabr.com.br
-        </div>
-      </section>
-
-      <section className="contato">
-        <h2>📧 Fale com a gente</h2>
-        <p>
-          Caso tenha dúvidas, sugestões ou queira entrar em contato com o criador, envie um e-mail para:
-        </p>
-        <div className="destaque-box">
-          <strong>contato@roletaestrategicabr.com.br</strong>
-        </div>
-      </section>
-
-      <section className="responsavel">
-        <h2>⚠️ Jogo responsável</h2>
-        <p>
-          Este site é destinado exclusivamente a maiores de <strong>18 anos</strong>. Encorajamos o <strong>jogo responsável</strong>: nunca aposte mais do que pode perder e jamais use o jogo como forma de renda principal. Aposte com consciência, equilíbrio e responsabilidade.
-        </p>
-      </section>
-      {/*}
-      <footer className="footer">
-        <p>© 2025 Roleta Estratégica. Todos os direitos reservados.</p>
-      </footer>
-      */}
-      {/* Google AdSense: rodapé da página */}
-      <div style={{ maxWidth: 970, margin: "24px auto", textAlign: "center" }}>
-        <AdBanner slot="8827435481" style={{ minHeight: 90 }} />
-      </div>
-      // BOTTOM_ADS_MARK
-
     </div>
   );
 }
-
-export default Sobre;

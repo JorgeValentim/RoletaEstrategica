@@ -1,67 +1,233 @@
 
-.sobre-container {
-  max-width: 900px;
+/* ===== Páginas internas (Sobre e Estratégias) ===== */
+
+/* Hero da página com imagem lateral */
+.page-hero{
+  position: relative;
+  background: radial-gradient(1200px 60% at 25% 30%, rgba(13,98,170,.22), rgba(13,98,170,0) 55%),
+              linear-gradient(180deg, rgba(4,32,52,1), rgba(4,32,52,0.92));
+  isolation: isolate;
+  padding: clamp(16px, 4vw, 36px) 16px;
+}
+.page-hero-inner{
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px;
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(16px, 5vw, 40px);
+  align-items: center;
 }
-
-.sobre-container h1 {
-  font-size: 2rem;
-  margin-bottom: 20px;
-  color: #002244;
+.page-hero h1{
+  margin: 0 0 8px;
+  font-weight: 900;
+  font-size: clamp(32px, 5.5vw, 64px);
+  letter-spacing: -0.02em;
 }
-
-.sobre-container p {
-  font-size: 1.05rem;
-  line-height: 1.7;
-  color: #333;
-  margin-bottom: 20px;
+.page-hero p.lead{
+  margin: 0;
+  color: #dbe7f4;
+  font-size: clamp(16px, 2.1vw, 20px);
+  line-height: 1.5;
 }
-
-.sobre-container img {
+.page-hero-figure{
   width: 100%;
-  max-width: 400px;
-  margin: 20px auto;
-  display: block;
-  border-radius: 8px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  max-width: 440px;
+  justify-self:end;
+  filter: drop-shadow(0 16px 40px rgba(0,0,0,.35));
+  transform: translateY(2px);
+}
+@media (max-width: 900px){
+  .page-hero-inner{ grid-template-columns: 1fr; text-align: left; }
+  .page-hero-figure{
+  width: 100%;
+  max-width: 440px;
+  justify-self:end;
+  filter: drop-shadow(0 16px 40px rgba(0,0,0,.35));
+  transform: translateY(2px);
+}
 }
 
-.section {
-  margin-top: 40px;
+/* Container de conteúdo elegante */
+.page-wrap{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: clamp(18px, 4vw, 28px) 16px 48px;
+}
+.section-title{
+  font-size: clamp(22px, 3vw, 32px);
+  color: #0b375d;
+  margin: 28px 0 10px;
+  letter-spacing: -0.01em;
+}
+.section-sub{
+  color:#475569;
+  margin: 0 0 18px;
 }
 
-.section h2 {
-  font-size: 1.4rem;
-  color: #111;
-  margin-bottom: 10px;
+/* Grid de conteúdo com imagem (para exemplos) */
+.content-grid{
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 22px;
+  align-items: start;
+}
+.content-grid img, .sobre-imagem{
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  box-shadow: 0 14px 36px rgba(2,8,23,.18);
+}
+@media (max-width: 900px){
+  .content-grid{ grid-template-columns: 1fr; }
 }
 
-.section .info-box {
-  background-color: #f5f5f5;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  color: #222;
-  font-size: 1rem;
-  margin-top: 8px;
-  display: inline-block;
+/* Tipografia */
+.page-wrap p{
+  color:#0f172a;
+  font-size: 18px;
+  line-height: 1.7;
+  margin: 12px 0;
+}
+.page-wrap ul{
+  margin: 8px 0 0 18px;
+  padding: 0;
+}
+.page-wrap li{ margin: 6px 0; }
+
+/* Cartões de prós/cons */
+.k-cards{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+.k-card{
+  background:#fff;
+  border:1px solid rgba(2,8,23,.06);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 10px 26px rgba(2,8,23,.08);
+}
+.k-card h3{
+  margin: 0 0 6px;
+  font-size: 18px;
+  color:#0b375d;
+}
+.k-card ul{ margin-left: 18px; }
+@media (max-width: 900px){ .k-cards{ grid-template-columns: 1fr; } }
+
+/* Box de aviso/responsabilidade */
+.callout{
+  background: #f0f9ff;
+  border: 1px solid rgba(2,8,23,.06);
+  border-left: 4px solid #22e6a8;
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin: 22px 0 8px;
+  color:#0b375d;
 }
 
-.section span {
-  display: block;
-  margin-bottom: 6px;
+/* Destaques e badges */
+.badge{
+  display:inline-block;
+  background:#083251;
+  color:#cffafe;
+  font-weight:700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing:.3px;
 }
 
-.warning {
-  background-color: #fff3cd;
-  color: #856404;
-  padding: 15px 20px;
-  border-left: 4px solid #ffc107;
-  border-radius: 5px;
-  margin-top: 40px;
+/* Container “sobre” legado (mantido para compatibilidade) */
+.sobre-container{ max-width: 1100px; margin: 0 auto; }
+.descricao{ padding: 0 16px; }
+
+/* Espaço para ads dentro das páginas */
+.page-ads-top{ max-width:970px; margin:12px auto 16px; text-align:center; }
+.page-ads-bottom{ max-width:970px; margin:24px auto; text-align:center; }
+
+
+/* ===== Hero refinado (mais moderno) ===== */
+.page-hero{
+  position: relative;
+  background: radial-gradient(1200px 60% at 25% 30%, rgba(13,98,170,.22), rgba(13,98,170,0) 55%),
+              linear-gradient(180deg, rgba(4,32,52,1), rgba(4,32,52,0.92));
+  isolation: isolate;
+  padding: clamp(16px, 4vw, 36px) 16px;
+}
+.page-hero::before{
+  /* vinheta suave */
+  content:"";
+  position:absolute; inset:0;
+  background: radial-gradient(1400px 80% at 60% -10%, rgba(0,0,0,.28), rgba(0,0,0,0) 55%);
+  pointer-events:none;
+  z-index:0;
+}
+.page-hero::after{
+  /* textura/onda sutil no rodapé do hero */
+  content:"";
+  position:absolute; left:0; right:0; bottom:-1px; height:36px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,.08));
+  filter: blur(8px);
+  pointer-events:none;
+  z-index:0;
+}
+.page-hero-inner{ position: relative; z-index:1; }
+
+/* Título com barra de acento */
+.page-hero h1{
+  position: relative;
+  color: white;
+}
+.page-hero h1::after{
+  content:"";
+  display:block;
+  width: clamp(80px, 18vw, 160px);
+  height: 4px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22e6a8, #6cf0d0);
+  box-shadow: 0 6px 20px rgba(108,240,208,.35);
+}
+
+/* Figura com moldura de vidro e brilho */
+.hero-figure-frame{
+  justify-self:end;
+  width: min(100%, 440px);
+  padding: 10px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 20px 60px rgba(3,10,24,.45), inset 0 1px 0 rgba(255,255,255,.18);
+  backdrop-filter: blur(2px);
+}
+.hero-figure-frame img{
+  display:block;
+  width:100%;
+  height:auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  background:#fff;
+}
+
+/* Badge mais discreto e elegante */
+.badge{
+  background: rgba(255,255,255,.08);
+  color:#dffbf3;
+  border: 1px solid rgba(255,255,255,.18);
+}
+
+/* Responsividade da figura */
+@media (max-width: 900px){
+  .hero-figure-frame{
+  justify-self:end;
+  width: min(100%, 440px);
+  padding: 10px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 20px 60px rgba(3,10,24,.45), inset 0 1px 0 rgba(255,255,255,.18);
+  backdrop-filter: blur(2px);
+}
 }
