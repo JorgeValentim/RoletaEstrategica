@@ -1,10 +1,8 @@
-
-/* ====== Design tokens ====== */
 :root{
   --hero-bg: url('./assets/hero-roulette.png');
-  --brand: #06243e;      /* navy refinado */
+  --brand: #06243e;
   --brand-2: #0b375d;
-  --accent: #22e6a8;     /* verde água */
+  --accent: #22e6a8;
   --text: #0f172a;
   --muted: #64748b;
   --card: #ffffff;
@@ -12,16 +10,16 @@
   --radius: 16px;
 }
 
-/* Base */
+/* Reset básico */
 *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
 html, body, #root{ height:100%; }
-body{ margin:0; font-family: "Inter", "Segoe UI", system-ui, sans-serif; color:var(--text); background:#f6f7fb; line-height:1.4; }
+body{ margin:0; font-family: Inter, "Segoe UI", system-ui, sans-serif; color:var(--text); background:#f6f7fb; line-height:1.4; }
 img{ max-width:100%; display:block; }
 button, input, select{ font-family: inherit; }
 
 .app{ display:flex; flex-direction:column; min-height:100vh; }
 
-/* ===== Header refinado ===== */
+/* ===== Header ===== */
 .header{
   position:sticky; top:0; z-index:50;
   background:var(--brand); color:#fff;
@@ -37,7 +35,7 @@ button, input, select{ font-family: inherit; }
 }
 .logo{ height:48px; width:auto; filter: drop-shadow(0 1px 3px rgba(0,0,0,.25)); }
 .logo-text{ display:flex; flex-direction:column; font-weight:800; line-height:1.05; color:#fff; }
-.logo-word, .logo-word-2{ font-size:18px; letter-spacing:-.3px; }
+.logo-word{ font-size:18px; letter-spacing:-.3px; }
 
 .menu{ display:flex; gap:28px; align-items:center; position: relative; margin-right: 8%;}
 .menu a{
@@ -54,12 +52,12 @@ button, input, select{ font-family: inherit; }
 .menu a:hover::after, .menu .active::after{ transform: scaleX(1); }
 .hamburger{ display:none; font-size:24px; cursor:pointer; color:#fff; background:transparent; border:0; }
 
-/* ===== Submenu: Estratégias ===== */
+/* ===== Submenu ===== */
 .submenu{
   position: relative;
   display: flex;
   align-items: center;
-  padding-bottom: 10px; /* evita "vazio" entre o botão e a lista */
+  padding-bottom: 10px;
   margin-top: 4%;
 }
 .submenu-toggle{
@@ -74,7 +72,7 @@ button, input, select{ font-family: inherit; }
 .submenu-items{
   display: none;
   position: absolute;
-  top: 100%; /* sem gap para não fechar ao mover o mouse */
+  top: 100%;
   left: 0;
   min-width: 200px;
   background: var(--brand-2);
@@ -85,11 +83,11 @@ button, input, select{ font-family: inherit; }
   gap: 6px;
   z-index: 60;
 }
-/* Abre no desktop por hover/focus; no mobile pela classe .open */
+/* abrir: desktop hover/focus; mobile por .open */
 .submenu:hover .submenu-items,
 .submenu:focus-within .submenu-items,
 .submenu.open .submenu-items{
-  display: flex;
+  display:flex;
 }
 
 .submenu-items a{
@@ -102,7 +100,7 @@ button, input, select{ font-family: inherit; }
 
 @media (max-width: 768px){
   .logo{ height:40px; }
-  .logo-word, .logo-word-2{ font-size:16px; }
+  .logo-word{ font-size:16px; }
   .hamburger{ display:block; }
   .menu{
     display:none; position:absolute; right:16px; top:64px; background:var(--brand);
@@ -111,7 +109,6 @@ button, input, select{ font-family: inherit; }
   }
   .menu.open{ display:flex; }
 
-  /* Submenu no mobile: ocupa largura total e expande por clique */
   .submenu{ width:100%; align-items: stretch; padding-bottom: 0; }
   .submenu-items{
     position: static;
@@ -119,12 +116,12 @@ button, input, select{ font-family: inherit; }
     border-radius: 10px;
     padding: 8px 12px;
     margin-top: 6px;
-    display: none; /* abre só quando .open */
+    display: none;
   }
   .submenu.open .submenu-items{ display:flex; }
 }
 
-/* ===== Hero com vinheta ===== */
+/* ===== Hero ===== */
 .hero{
   position:relative;
   min-height: 58vh;
@@ -136,11 +133,12 @@ button, input, select{ font-family: inherit; }
     var(--hero-bg);
   background-size:cover; background-position:center;
 }
+.hero-overlay{ position:absolute; inset:0; }
 .hero-inner{ position:relative; text-align:center; max-width: 1100px; }
 .hero-title{ color:#fff; font-size: clamp(38px, 6.8vw, 76px); line-height:1.04; letter-spacing:-0.02em; margin:0 0 12px; font-weight:900; text-shadow: 0 2px 14px rgba(0,0,0,.38); }
 .hero-subtitle{ color:#e2e8f0; font-size: clamp(16px, 2.1vw, 22px); margin:0; opacity:.98; text-shadow: 0 1px 8px rgba(0,0,0,.35); }
 
-/* ===== Card com glass suave ===== */
+/* ===== Card de controles ===== */
 .control-wrap{ position: relative; z-index: 2; display:flex; justify-content:center; margin-top: -64px; padding:0 16px; }
 .control-card{
   width:min(1120px, 96%);
@@ -151,20 +149,31 @@ button, input, select{ font-family: inherit; }
   box-shadow: var(--shadow);
   padding: 18px;
   border: 1px solid rgba(2,8,23,.06);
+  overflow: hidden;            /* evita qualquer “vazamento” visual */
 }
 
-/* Inputs/Selects */
-.inputs{ display:grid; grid-template-columns: repeat(6, minmax(160px, 1fr)); gap:12px; }
+.inputs{
+  /* auto-fit evita overflow: quebra a linha quando necessário */
+  display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap:12px;
+}
 .inputs input, .inputs select{
   width:100%; padding:12px 14px; font-size:16px; border-radius:12px;
   border:1px solid #e5e7eb; outline:none; background:#fff;
   transition:border-color .2s, box-shadow .2s, transform .06s;
+  max-width: 100%;            /* garante que o select não estoure */
 }
 .inputs input:focus, .inputs select:focus{
   border-color:#9fc2f1;
   box-shadow:0 0 0 4px rgba(79, 158, 255, .18);
 }
 .inputs input:hover, .inputs select:hover{ border-color:#cbd5e1; }
+
+/* Select pode ocupar 2 colunas em telas grandes sem quebrar layout */
+.inputs .span2{ grid-column: span 1; }
+@media (min-width: 1100px){
+  .inputs .span2{ grid-column: span 2; }
+}
 
 /* Botões */
 .btn-primary{
@@ -176,12 +185,25 @@ button, input, select{ font-family: inherit; }
 .btn-primary:hover{ filter: brightness(1.06); box-shadow: 0 10px 24px rgba(2,8,23,.22); }
 .btn-primary:active{ transform: translateY(1px); }
 
-@media (max-width: 1024px){ .inputs{ grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 1024px){ .inputs{ grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); } }
 @media (max-width: 640px){ .inputs{ grid-template-columns: 1fr; } }
 
 /* Info banca */
 .banca{ display:flex; align-items:center; gap:8px; font-weight:800; color:#16a34a; margin:14px 6px 6px; }
 .coin{ filter: drop-shadow(0 2px 2px rgba(0,0,0,.15)); }
+
+/* ===== Caixa 2 — Instruções ===== */
+.fifty-helper{
+  width:min(1120px, 96%);
+  margin: 12px auto 0;
+  background:#fff;
+  border:1px solid rgba(2,8,23,.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+.fh-head h3{ margin:0 0 6px; font-size:18px; color:#0b375d; }
+.fh-meta{ font-size:14px; color:#475569; }
 
 /* ===== Área de simulação ===== */
 .sim-area{ padding:28px 16px 8px; text-align:center; }
@@ -201,59 +223,6 @@ button, input, select{ font-family: inherit; }
 .ad-bottom{ margin-bottom:36px; }
 
 /* ===== Footer ===== */
-.footer{ margin-top:auto; background:var(--brand); color:#fff; padding:16px; text-align:center; font-size:14px; }
-
-/* ===== Acessibilidade: foco visível ===== */
-:focus-visible{ outline: 3px solid rgba(34,230,168,.6); outline-offset: 2px; border-radius:12px; }
-
-
-@media (max-width: 1024px){
-  .hero{ min-height: 52vh; padding:36px 16px 96px; }
-}
-@media (max-width: 640px){
-  .hero{ min-height: 46vh; padding:28px 12px 88px; }
-}
-
-
-
-/* ===== Histórico da rodada ===== */
-.history-card{
-  width:min(1120px, 96%);
-  margin: 18px auto 0;
-  background:#fff;
-  border:1px solid rgba(2,8,23,.08);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 14px 16px;
-  text-align:left;
-}
-.history-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
-.history-head h3{ margin:0; font-size:18px; }
-.history-meta{ color:var(--muted); font-size:14px; }
-
-.history-empty{ color:var(--muted); margin:8px 2px 4px; }
-
-.history-list{ list-style:none; padding:0; margin:0; }
-.history-row{
-  display:grid;
-  grid-template-columns: 92px 96px 1fr 1fr; /* hora, resultado, aposta, banca */
-  align-items:center;
-  gap:8px;
-  padding:8px 6px;
-  border-top:1px dashed rgba(2,8,23,.08);
-  font-size:14px;
-}
-.history-row.ok .h-col--res{ color:#16a34a; font-weight:700; }
-.history-row.no .h-col--res{ color:#ef4444; font-weight:700; }
-.h-col--bet, .h-col--bank{ font-variant-numeric: tabular-nums; font-weight:600; }
-
-@media (max-width: 640px){
-  .history-row{ grid-template-columns: 70px 76px 1fr; }
-  .h-col--bank{ display:none; }
-}
-
-
-/* ===== Footer elegante ===== */
 .footer{
   margin-top:auto;
   background: linear-gradient(180deg, var(--brand), #041a2b);
@@ -284,95 +253,56 @@ a:hover .icon{ opacity:1; transform: translateY(-1px); }
   .footer-social{ justify-self:center; }
 }
 
+/* ===== Acessibilidade ===== */
+:focus-visible{ outline: 3px solid rgba(34,230,168,.6); outline-offset: 2px; border-radius:12px; }
 
-/* ===== Submenu dropdown - aparência melhorada ===== */
-.submenu {
-  position: relative;
+/* Responsivo hero */
+@media (max-width: 1024px){
+  .hero{ min-height: 52vh; padding:36px 16px 96px; }
 }
-.submenu-items{
-  /* Aparência elegante */
-  background: linear-gradient(180deg, rgba(9,52,86,.96), rgba(7,41,70,.96));
-  border: 1px solid rgba(255,255,255,.14);
-  box-shadow:
-    0 18px 44px rgba(2,8,23,.35),
-    inset 0 1px 0 rgba(255,255,255,.12);
-  backdrop-filter: blur(8px);
-  border-radius: 14px;
-  padding: 10px;
-  gap: 4px;
-
-  /* Animação de abertura */
-  opacity: 0;
-  transform: translateY(8px) scale(.98);
-  transition: opacity .18s ease, transform .18s ease, box-shadow .2s ease;
-  pointer-events: none;
-}
-/* Triângulo/caret */
-.submenu-items::before{
-  content:"";
-  position:absolute;
-  top: -8px;
-  left: 16px;
-  width: 14px; height: 14px;
-  transform: rotate(45deg);
-  background: inherit;
-  border-left: 1px solid rgba(255,255,255,.14);
-  border-top: 1px solid rgba(255,255,255,.14);
-  filter: blur(.1px);
+@media (max-width: 640px){
+  .hero{ min-height: 46vh; padding:28px 12px 88px; }
 }
 
-/* Estados de abertura (desktop) */
-.submenu:hover .submenu-items,
-.submenu:focus-within .submenu-items,
-.submenu.open .submenu-items{
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
+/* ===== Histórico ===== */
+.history-card{
+  width:min(1120px, 96%);
+  margin: 18px auto 0;
+  background:#fff;
+  border:1px solid rgba(2,8,23,.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 16px;
+  text-align:left;
+}
+.history-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+.history-head h3{ margin:0; font-size:18px; }
+.history-meta{ color:var(--muted); font-size:14px; }
+.history-empty{ color:var(--muted); margin:8px 2px 4px; }
+.history-list{ list-style:none; padding:0; margin:0; }
+.history-row{
+  display:grid;
+  grid-template-columns: 92px 96px 1fr 1fr;
+  align-items:center;
+  gap:8px;
+  padding:8px 6px;
+  border-top:1px dashed rgba(2,8,23,.08);
+  font-size:14px;
+}
+.history-row.ok .h-col--res{ color:#16a34a; font-weight:700; }
+.history-row.no .h-col--res{ color:#ef4444; font-weight:700; }
+.h-col--bet, .h-col--bank{ font-variant-numeric: tabular-nums; font-weight:600; }
+
+@media (max-width: 640px){
+  .history-row{ grid-template-columns: 70px 76px 1fr; }
+  .h-col--bank{ display:none; }
 }
 
-/* Itens do dropdown */
-.submenu-items a{
-  display: block;
-  padding: 10px 12px;
-  border-radius: 10px;
-  color: #e6f0f7;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-}
-.submenu-items a:hover{
-  background: rgba(255,255,255,.06);
-  color: #fff;
-}
-/* Item ativo dentro do dropdown */
-.submenu-items .active{
-  background: rgba(34,230,168,.12);
-  box-shadow: inset 0 0 0 1px rgba(34,230,168,.35);
-  color: #ffffff;
-}
-
-/* Mobile: mantém comportamento por clique e layout preenchendo largura */
+/* ===== Mobile menu overlay ===== */
 @media (max-width: 768px){
-  .submenu-items{
-    border: 1px solid rgba(255,255,255,.08);
-    box-shadow: 0 12px 28px rgba(2,8,23,.28);
-    opacity: 1;           /* visível somente quando .open */
-    transform: none;
-    pointer-events: auto;
-  }
-  .submenu:not(.open) .submenu-items{
-    display: none;
-  }
-}
-
-
-/* ==== Mobile menu overhaul ==== */
-@media (max-width: 768px){
-  /* Full-width flyout under header, respects safe area */
   .menu{
     position: fixed;
-    left: 0;
-    right: 0;
+    left: 0; right: 0;
     top: calc(64px + env(safe-area-inset-top));
     width: 100%;
     max-height: calc(100vh - 80px - env(safe-area-inset-top));
@@ -385,47 +315,19 @@ a:hover .icon{ opacity:1; transform: translateY(-1px); }
     -webkit-overflow-scrolling: touch;
     z-index: 60;
   }
-  .menu a, .submenu-toggle{
-    font-size: 18px;
-    padding: 12px 2px;
-  }
-  /* Make the submenu block-level and aligned */
-  .submenu{
-    margin-top: 4px;
-    padding-bottom: 0;
-    width: 100%;
-    align-items: stretch;
-  }
-  .submenu-toggle{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .submenu-items{
-    position: static;
-    display: none;
-    margin-top: 8px;
-    padding: 8px 10px;
-    border-radius: 12px;
-    background: #0a2e4c;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-  }
-  .submenu.open .submenu-items{ display:flex; }
-  /* Remove caret on mobile */
-  .submenu-items::before{ display:none !important; }
-
-  /* Prevent hover from triggering open on touch */
-  .submenu:not(.open):hover .submenu-items{ display: none; }
-}
-
-/* Subtle overlay behind the mobile panel */
-@media (max-width: 768px){
   .menu.open::after{
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: rgba(2,8,23,.35);
-    backdrop-filter: blur(2px);
+    content: ""; position: fixed; inset: 0;
+    background: rgba(2,8,23,.35); backdrop-filter: blur(2px);
     z-index: -1;
   }
+  .menu a, .submenu-toggle{ font-size: 18px; padding: 12px 2px; }
+  .submenu{ margin-top: 4px; padding-bottom: 0; width: 100%; align-items: stretch; }
+  .submenu-toggle{ display:flex; justify-content:space-between; align-items:center; }
+  .submenu-items{
+    position: static; display: none; margin-top: 8px; padding: 8px 10px;
+    border-radius: 12px; background: #0a2e4c; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .submenu.open .submenu-items{ display:flex; }
+  .submenu-items::before{ display:none !important; }
+  .submenu:not(.open):hover .submenu-items{ display: none; }
 }

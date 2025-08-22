@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import {
   Routes,
@@ -68,22 +67,43 @@ function Home() {
   const [history, setHistory] = useState([]); // histórico da rodada
   const [step, setStep] = useState(0);
 
-  SEO({ title: "Roleta Estratégica — Simulador" });
+  const [isCompact, setIsCompact] = useState(false);
+  useEffect(() => {
+    const check = () => setIsCompact(window.innerWidth < 1280);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
-  const fmt = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const PH = {
+    bank: "Valor da banca",
+    goal: isCompact ? "Meta diária" : "Meta diária",
+    loss: isCompact ? "Máx. perda" : "Máx. perda",
+    perc: isCompact ? "% por aposta" : "% por aposta",
+    strategy: "Escolha uma estratégia",
+  };
+
+  const fmt = (n) =>
+    n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const getUnit = (base = initialBank) =>
     Number(((base * percentage) / 100).toFixed(2));
 
   const handleStart = () => {
     if (
-      !bank || bank <= 0 ||
-      !goal || goal <= 0 ||
-      !lossLimit || lossLimit <= 0 ||
-      !strategy || !percentage || percentage <= 0 || percentage > 100
+      !bank ||
+      bank <= 0 ||
+      !goal ||
+      goal <= 0 ||
+      !lossLimit ||
+      lossLimit <= 0 ||
+      !strategy ||
+      !percentage ||
+      percentage <= 0 ||
+      percentage > 100
     ) {
       alert(
-        "Preencha todos os campos corretamente.\\n• Banca, meta e perda > 0\\n• % da banca (1 a 100)\\n• Escolha uma estratégia."
+        "Preencha todos os campos corretamente.\n• Banca, meta e perda > 0\n• % da banca (1 a 100)\n• Escolha uma estratégia."
       );
       return;
     }
@@ -100,7 +120,8 @@ function Home() {
     if (finished) return;
 
     let newBank = bank;
-    if (result === "win") newBank += bet; else newBank -= bet;
+    if (result === "win") newBank += bet;
+    else newBank -= bet;
 
     const unit = getUnit();
     let nextBet = unit;
@@ -118,9 +139,10 @@ function Home() {
         nextBet = Number((unit * fibonacciSequence[nextIndex]).toFixed(2));
       }
     } else if (strategy === "DAlembert") {
-      nextBet = result === "loss"
-        ? Number((bet + unit).toFixed(2))
-        : Math.max(Number((bet - unit).toFixed(2)), unit);
+      nextBet =
+        result === "loss"
+          ? Number((bet + unit).toFixed(2))
+          : Math.max(Number((bet - unit).toFixed(2)), unit);
     }
 
     nextBet = Math.max(nextBet, unit);
@@ -134,9 +156,13 @@ function Home() {
         resultado: result === "win" ? "Vitória" : "Derrota",
         aposta: Number(bet.toFixed(2)),
         bancaApos: Number(newBank.toFixed(2)),
-        horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        horario: new Date().toLocaleTimeString("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }),
       },
-      ...h
+      ...h,
     ]);
     setStep((s) => s + 1);
 
@@ -152,7 +178,9 @@ function Home() {
         <div className="hero-overlay" />
         <div className="hero-inner">
           <h1 className="hero-title">Bem-vindo a Roleta Estratégica!</h1>
-          <p className="hero-subtitle">Escolha sua estratégia, defina metas e jogue com responsabilidade</p>
+          <p className="hero-subtitle">
+            Escolha sua estratégia, defina metas e jogue com responsabilidade
+          </p>
         </div>
       </section>
 
@@ -163,7 +191,9 @@ function Home() {
             <input
               type="number"
               min="0"
-              placeholder="Valor da banca"
+              placeholder={PH.bank}
+              aria-label="Valor da banca"
+              title="Valor da banca"
               onChange={(e) => {
                 const value = Number(e.target.value);
                 setBank(value);
@@ -173,35 +203,64 @@ function Home() {
             <input
               type="number"
               min="0"
-              placeholder="Meta de lucro do dia"
+              placeholder={PH.goal}
+              aria-label="Meta diária"
+              title="Meta diária"
               onChange={(e) => setGoal(Number(e.target.value))}
             />
             <input
               type="number"
               min="0"
-              placeholder="Valor máximo de perda"
+              placeholder={PH.loss}
+              aria-label="Máx. perda"
+              title="Valor máximo de perda"
               onChange={(e) => setLossLimit(Number(e.target.value))}
             />
             <input
               type="number"
               min="1"
               max="100"
-              placeholder="% da banca por aposta"
+              placeholder={PH.perc}
+              aria-label="% por aposta"
+              title="% da banca por aposta"
               onChange={(e) => setPercentage(Number(e.target.value))}
             />
-            <select onChange={(e) => setStrategy(e.target.value)}>
+            <select
+              className="span2"
+              onChange={(e) => setStrategy(e.target.value)}
+              title="Escolha uma estratégia"
+              aria-label="Escolha uma estratégia"
+            >
               <option value="">Escolha uma estratégia</option>
               <option value="Martingale">Martingale</option>
               <option value="Fibonacci">Fibonacci</option>
               <option value="DAlembert">D'Alembert</option>
             </select>
-            <button className="btn-primary" onClick={handleStart}>Iniciar Estratégia</button>
+            <button className="btn-primary" onClick={handleStart}>
+              Iniciar Estratégia
+            </button>
           </div>
 
           <p className="banca">
-            <span className="coin" aria-hidden>🪙</span>
+            <span className="coin" aria-hidden>
+              🪙
+            </span>
             Banca Atual: <strong>R$ {bank.toFixed(2)}</strong>
           </p>
+        </div>
+      </section>
+
+      {/* Caixa 2 — apenas instruções */}
+      <section className="fifty-helper">
+        <div className="fh-head">
+          <h3>Opções 50% — Como funciona</h3>
+          <div className="fh-meta">
+            Escolha <strong>uma</strong> das opções com ~50% de chance:
+            <br />
+            <b>Par x Ímpar</b>, <b>Vermelho x Preto</b> ou <b>1–18 x 19–36</b>.
+            Depois aplique a sua estratégia (Martingale, Fibonacci ou
+            D'Alembert) seguindo sua gestão de banca.
+          </div>
         </div>
       </section>
 
@@ -213,16 +272,26 @@ function Home() {
               Próxima aposta: <strong>R$ {bet.toFixed(2)}</strong>
             </p>
             <div className="result-buttons">
-              <button className="btn-win" onClick={() => handleResult("win")}>Vitória</button>
-              <button className="btn-lose" onClick={() => handleResult("loss")}>Derrota</button>
+              <button className="btn-win" onClick={() => handleResult("win")}>
+                Vitória
+              </button>
+              <button className="btn-lose" onClick={() => handleResult("loss")}>
+                Derrota
+              </button>
             </div>
           </div>
         )}
 
         {finished && (
           <div className="finalizado">
-            <h2 style={{ color: bank >= initialBank + goal ? "#16a34a" : "#dc2626" }}>
-              {bank >= initialBank + goal ? "🎉 Meta atingida!" : "🚫 Limite de perda atingido!"}
+            <h2
+              style={{
+                color: bank >= initialBank + goal ? "#16a34a" : "#dc2626",
+              }}
+            >
+              {bank >= initialBank + goal
+                ? "🎉 Meta atingida!"
+                : "🚫 Limite de perda atingido!"}
             </h2>
           </div>
         )}
@@ -231,18 +300,31 @@ function Home() {
           <aside className="history-card" aria-live="polite">
             <div className="history-head">
               <h3>Histórico da rodada</h3>
-              <span className="history-meta">{step} {step === 1 ? 'jogada' : 'jogadas'}</span>
+              <span className="history-meta">
+                {step} {step === 1 ? "jogada" : "jogadas"}
+              </span>
             </div>
             {history.length === 0 ? (
-              <p className="history-empty">Os resultados aparecerão aqui após sua primeira jogada.</p>
+              <p className="history-empty">
+                Os resultados aparecerão aqui após sua primeira jogada.
+              </p>
             ) : (
               <ul className="history-list">
                 {history.map((item) => (
-                  <li key={item.id} className={`history-row ${item.resultado === 'Vitória' ? 'ok' : 'no'}`}>
+                  <li
+                    key={item.id}
+                    className={`history-row ${
+                      item.resultado === "Vitória" ? "ok" : "no"
+                    }`}
+                  >
                     <span className="h-col h-col--time">{item.horario}</span>
                     <span className="h-col h-col--res">{item.resultado}</span>
-                    <span className="h-col h-col--bet">{fmt(item.aposta)}</span>
-                    <span className="h-col h-col--bank">{fmt(item.bancaApos)}</span>
+                    <span className="h-col h-col--bet">
+                      {fmt(item.aposta)}
+                    </span>
+                    <span className="h-col h-col--bank">
+                      {fmt(item.bancaApos)}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -268,7 +350,9 @@ function Shell() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isStrategy = ["/martingale","/fibonacci","/dalembert"].includes(location.pathname);
+  const isStrategy = ["/martingale", "/fibonacci", "/dalembert"].includes(
+    location.pathname
+  );
 
   const navRef = useDismissible(() => {
     setMenuOpen(false);
@@ -300,9 +384,17 @@ function Shell() {
   return (
     <div className="app">
       <header className="header">
-        <button className="logo-btn" onClick={onLogoClick} aria-label="Ir para a página inicial" title="Roleta Estratégica">
+        <button
+          className="logo-btn"
+          onClick={onLogoClick}
+          aria-label="Ir para a página inicial"
+          title="Roleta Estratégica"
+        >
           <img src={logo} alt="Roleta Estratégica — logo" className="logo" />
-          <span className="logo-text"><span className="logo-word logo-top">Roleta</span><span className="logo-word logo-bottom">Estratégica</span></span>
+          <span className="logo-text">
+            <span className="logo-word logo-top">Roleta</span>
+            <span className="logo-word logo-bottom">Estratégica</span>
+          </span>
         </button>
 
         <button
@@ -322,10 +414,14 @@ function Shell() {
           role="navigation"
           aria-label="Principal"
         >
-          <NavLink to="/" onClick={closeMenus}>Início</NavLink>
-          <NavLink to="/sobre" onClick={closeMenus}>Sobre nós</NavLink>
+          <NavLink to="/" onClick={closeMenus}>
+            Início
+          </NavLink>
+          <NavLink to="/sobre" onClick={closeMenus}>
+            Sobre nós
+          </NavLink>
 
-          {/* Submenu: no desktop abre por :hover/:focus-within; no mobile abre por clique (classe .open) */}
+          {/* Submenu: desktop abre por hover/focus-within; mobile por clique (.open) */}
           <div className={`submenu ${subOpen ? "open" : ""}`}>
             <button
               className={`submenu-toggle ${isStrategy ? "active" : ""}`}
@@ -336,9 +432,15 @@ function Shell() {
               Estratégias ▾
             </button>
             <div className="submenu-items" role="menu">
-              <NavLink to="/martingale" onClick={closeMenus} role="menuitem">Martingale</NavLink>
-              <NavLink to="/fibonacci" onClick={closeMenus} role="menuitem">Fibonacci</NavLink>
-              <NavLink to="/dalembert" onClick={closeMenus} role="menuitem">D'Alembert</NavLink>
+              <NavLink to="/martingale" onClick={closeMenus} role="menuitem">
+                Martingale
+              </NavLink>
+              <NavLink to="/fibonacci" onClick={closeMenus} role="menuitem">
+                Fibonacci
+              </NavLink>
+              <NavLink to="/dalembert" onClick={closeMenus} role="menuitem">
+                D'Alembert
+              </NavLink>
             </div>
           </div>
         </nav>
@@ -358,33 +460,62 @@ function Shell() {
             <img src={logo} alt="" className="footer-logo" aria-hidden="true" />
             <div>
               <strong>Roleta Estratégica</strong>
-              <div className="footer-copy">© {new Date().getFullYear()} — Todos os direitos reservados.</div>
+              <div className="footer-copy">
+                © {new Date().getFullYear()} — Todos os direitos reservados.
+              </div>
             </div>
           </div>
 
           <div className="footer-contact">
             <span>Contato:</span>
-            <a href="mailto:contato@roletaestrategicabr.com.br" className="footer-mail" rel="noopener">contato@roletaestrategicabr.com.br</a>
+            <a
+              href="mailto:contato@roletaestrategicabr.com.br"
+              className="footer-mail"
+              rel="noopener"
+            >
+              contato@roletaestrategicabr.com.br
+            </a>
           </div>
 
           <nav className="footer-social" aria-label="Redes sociais">
             <ul className="social-list">
               <li>
-                <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                <a
+                  href="https://www.youtube.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="YouTube"
+                >
                   {/* YouTube */}
-                  <svg viewBox="0 0 24 24" className="icon" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.4 3.5 12 3.5 12 3.5s-7.4 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c2 .6 9.4.6 9.4.6s7.4 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.5v-7L16 12l-6.4 3.5z"/></svg>
+                  <svg viewBox="0 0 24 24" className="icon" aria-hidden="true">
+                    <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.4 3.5 12 3.5 12 3.5s-7.4 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c2 .6 9.4.6 9.4.6s7.4 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.5v-7L16 12l-6.4 3.5z" />
+                  </svg>
                 </a>
               </li>
               <li>
-                <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <a
+                  href="https://www.instagram.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                >
                   {/* Instagram */}
-                  <svg viewBox="0 0 24 24" className="icon" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.9.3 2.4.5.6.2 1 .5 1.5 1 .5.5.8.9 1 1.5.2.5.4 1.2.5 2.4.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.9-.5 2.4-.2.6-.5 1-1 1.5-.5.5-.9.8-1.5 1-.5.2-1.2.4-2.4.5-1.3.1-1.7.1-4.9.1s-3.5 0-4.7-.1c-1.2-.1-1.9-.3-2.4-.5-.6-.2-1-.5-1.5-1-.5-.5-.8-.9-1-1.5-.2-.5-.4-1.2-.5-2.4C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.9.5-2.4.2-.6.5-1 1-1.5.5-.5.9-.8 1.5-1 .5-.2 1.2-.4 2.4-.5C8.4 2.2 8.8 2.2 12 2.2zm0 1.8c-3.1 0-3.5 0-4.7.1-1 .1-1.6.2-2 .4-.5.2-.8.4-1.1.7-.3.3-.5.6-.7 1.1-.2.4-.3 1-.4 2-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1 .2 1.6.4 2 .2.5.4.8.7 1.1.3.3.6.5 1.1.7.4.2 1 .3 2 .4 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1-.1 1.6-.2 2-.4.5-.2.8-.4 1.1-.7.3-.3.5-.6.7-1.1.2-.4.3-1 .4-2 .1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1-.2-1.6-.4-2-.2-.5-.4-.8-.7-1.1-.3-.3-.6-.5-1.1-.7-.4-.2-1-.3-2-.4-1.2-.1-1.6-.1-4.7-.1zm0 2.8a5.2 5.2 0 1 1 0 10.4 5.2 5.2 0 0 1 0-10.4zm0 1.8a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm5.7-3.1a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg>
+                  <svg viewBox="0 0 24 24" className="icon" aria-hidden="true">
+                    <path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.9.3 2.4.5.6.2 1 .5 1.5 1 .5.5.8.9 1 1.5.2.5.4 1.2.5 2.4.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.9-.5 2.4-.2.6-.5 1-1 1.5-.5.5-.9.8-1.5 1-.5.2-1.2.4-2.4.5-1.3.1-1.7.1-4.9.1s-3.5 0-4.7-.1c-1.2-.1-1.9-.3-2.4-.5-.6-.2-1-.5-1.5-1-.5-.5-.8-.9-1-1.5-.2-.5-.4-1.2-.5-2.4C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.9.5-2.4.2-.6.5-1 1-1.5.5-.5.9-.8 1.5-1 .5-.2 1.2-.4 2.4-.5C8.4 2.2 8.8 2.2 12 2.2zm0 2.8a5.2 5.2 0 1 1 0 10.4 5.2 5.2 0 0 1 0-10.4zm0 1.8a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm5.7-3.1a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z" />
+                  </svg>
                 </a>
               </li>
               <li>
-                <a href="https://t.me/" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+                <a
+                  href="https://t.me/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Telegram"
+                >
                   {/* Telegram */}
-                  <svg viewBox="0 0 24 24" className="icon" aria-hidden="true"><path d="M9.04 15.52 8.7 19.9c.61 0 .87-.26 1.19-.57l2.86-2.74 5.93 4.34c1.09.6 1.86.29 2.16-1.01l3.91-18.3c.35-1.64-.59-2.28-1.65-1.89L1.26 9.77C-.33 10.39-.31 11.23.97 11.62l5.92 1.85L19.6 5.38c.59-.38 1.13-.17.69.21L9.04 15.52z"/></svg>
+                  <svg viewBox="0 0 24 24" className="icon" aria-hidden="true">
+                    <path d="M9.04 15.52 8.7 19.9c.61 0 .87-.26 1.19-.57l2.86-2.74 5.93 4.34c1.09.6 1.86.29 2.16-1.01l3.91-18.3c.35-1.64-.59-2.28-1.65-1.89L1.26 9.77C-.33 10.39-.31 11.23.97 11.62l5.92 1.85L19.6 5.38c.59-.38 1.13-.17.69.21L9.04 15.52z" />
+                  </svg>
                 </a>
               </li>
             </ul>
@@ -402,7 +533,7 @@ function MaybeRouter({ children }) {
 export default function App() {
   return (
     <MaybeRouter>
-      <SEO title="Roleta Estratégica — Simulador" />
+      {/* Título/meta já são atualizados no Shell */}
       <Shell />
     </MaybeRouter>
   );
