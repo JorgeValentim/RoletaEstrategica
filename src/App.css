@@ -1,7 +1,7 @@
 
 /* ====== Design tokens ====== */
 :root{
-  --hero-bg: url('src/assets/hero-roulette.png');
+  --hero-bg: url('./assets/hero-roulette.png');
   --brand: #06243e;      /* navy refinado */
   --brand-2: #0b375d;
   --accent: #22e6a8;     /* verde água */
