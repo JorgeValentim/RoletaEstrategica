@@ -16,6 +16,10 @@ import logo from "./assets/icon.png";
 import "./App.css";
 import AdBanner from "./components/AdBanner";
 
+// bibliotecas para exportação
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+
 const DEFAULT_DESC =
   "Simule estratégias de roleta (Martingale, Fibonacci e D’Alembert), configure banca, objetivos e jogue com responsabilidade.";
 
@@ -64,8 +68,55 @@ function Home() {
   const [bet, setBet] = useState(0);
   const fibonacciSequence = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
   const [fibIndex, setFibIndex] = useState(0);
-  const [history, setHistory] = useState([]); // histórico da rodada
+  const [history, setHistory] = useState([]);
   const [step, setStep] = useState(0);
+
+  // Timer da rodada
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+
+  // ===== Tipo de aposta
+  const [betGroup, setBetGroup] = useState("parity");
+  const [betChoice, setBetChoice] = useState("par");
+
+  const betGroupLabel = {
+    parity: "Par × Ímpar",
+    color: "Vermelho × Preto",
+    range: "1–18 × 19–36",
+  };
+  const betOptions = {
+    parity: [
+      { value: "par", label: "Par" },
+      { value: "impar", label: "Ímpar" },
+    ],
+    color: [
+      { value: "vermelho", label: "Vermelho" },
+      { value: "preto", label: "Preto" },
+    ],
+    range: [
+      { value: "1-18", label: "1–18" },
+      { value: "19-36", label: "19–36" },
+    ],
+  };
+  const choiceLabel = (group, value) =>
+    (betOptions[group].find((o) => o.value === value) || {}).label || "";
+
+  // ===== Estratégia Condicional (anti-sequência)
+  const [conditionalOn, setConditionalOn] = useState(true);
+  const [streakThreshold, setStreakThreshold] = useState(4); // 4 ou 5
+  const [streak, setStreak] = useState({ group: "parity", side: null, count: 0 });
+  const [suggestedChoice, setSuggestedChoice] = useState(null);
+  const [autoApplySuggestion, setAutoApplySuggestion] = useState(false);
+
+  const oppositeMap = {
+    parity: { par: "impar", impar: "par" },
+    color: { vermelho: "preto", preto: "vermelho" },
+    range: { "1-18": "19-36", "19-36": "1-18" },
+  };
+  function inferOutcomeSide(group, chosenValue, result) {
+    const opp = oppositeMap[group][chosenValue];
+    return result === "win" ? chosenValue : opp;
+  }
 
   const [isCompact, setIsCompact] = useState(false);
   useEffect(() => {
@@ -77,17 +128,38 @@ function Home() {
 
   const PH = {
     bank: "Valor da banca",
-    goal: isCompact ? "Meta diária" : "Meta diária",
-    loss: isCompact ? "Máx. perda" : "Máx. perda",
-    perc: isCompact ? "% por aposta" : "% por aposta",
-    strategy: "Escolha uma estratégia",
+    goal: "Meta diária",
+    loss: "Máx. perda",
+    perc: "% por aposta",
   };
 
   const fmt = (n) =>
     n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+  const formatDuration = (ms) => {
+    if (!ms || ms < 0) return "—";
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const ss = s % 60;
+    const parts = [];
+    if (h) parts.push(`${h}h`);
+    if (m) parts.push(`${m}m`);
+    parts.push(`${ss}s`);
+    return parts.join(" ");
+  };
+
   const getUnit = (base = initialBank) =>
     Number(((base * percentage) / 100).toFixed(2));
+
+  const resetBetChoiceForGroup = (group) => {
+    const def = {
+      parity: "par",
+      color: "vermelho",
+      range: "1-18",
+    }[group];
+    setBetChoice(def);
+  };
 
   const handleStart = () => {
     if (
@@ -114,11 +186,38 @@ function Home() {
     setBet(getUnit(bank));
     setHistory([]);
     setStep(0);
+    setStreak({ group: betGroup, side: null, count: 0 });
+    setSuggestedChoice(null);
+    setStartTime(Date.now());
+    setEndTime(null);
   };
+
+  // Aplica/sugere após o React consolidar o estado
+  useEffect(() => {
+    if (!conditionalOn) return;
+    if (!streak?.side || streak?.count < streakThreshold) return;
+
+    const oppositeSide = oppositeMap[streak.group][streak.side];
+    if (autoApplySuggestion) {
+      setBetChoice(oppositeSide);
+      setSuggestedChoice(null);
+    } else {
+      setSuggestedChoice(oppositeSide);
+    }
+  }, [streak, conditionalOn, streakThreshold, autoApplySuggestion]);
 
   const handleResult = (result) => {
     if (finished) return;
 
+    // 1) Anti-sequência
+    const outcomeSide = inferOutcomeSide(betGroup, betChoice, result);
+    const nextCount =
+      streak.group === betGroup && streak.side === outcomeSide
+        ? streak.count + 1
+        : 1;
+    setStreak({ group: betGroup, side: outcomeSide, count: nextCount });
+
+    // 2) Lógica financeira
     let newBank = bank;
     if (result === "win") newBank += bet;
     else newBank -= bet;
@@ -149,13 +248,14 @@ function Home() {
     setBank(Number(newBank.toFixed(2)));
     setBet(Number(nextBet.toFixed(2)));
 
-    // registra histórico desta jogada
+    // 3) Histórico
     setHistory((h) => [
       {
         id: h.length + 1,
         resultado: result === "win" ? "Vitória" : "Derrota",
         aposta: Number(bet.toFixed(2)),
         bancaApos: Number(newBank.toFixed(2)),
+        alvo: `${betGroupLabel[betGroup]} → ${choiceLabel(betGroup, betChoice)}`,
         horario: new Date().toLocaleTimeString("pt-BR", {
           hour: "2-digit",
           minute: "2-digit",
@@ -166,9 +266,57 @@ function Home() {
     ]);
     setStep((s) => s + 1);
 
+    // 4) Meta/stop
     const profit = newBank - initialBank;
     const loss = initialBank - newBank;
-    if (profit >= goal || loss >= lossLimit) setFinished(true);
+    if (profit >= goal || loss >= lossLimit) {
+      setFinished(true);
+      setEndTime(Date.now());
+    }
+  };
+
+  // ===== Exportação (PDF/JPEG)
+  const reportRef = useRef(null);
+
+  const exportReport = async (format = "pdf") => {
+    const node = reportRef.current;
+    if (!node) return;
+
+    // canvas com resolução maior para qualidade
+    const canvas = await html2canvas(node, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      useCORS: true,
+    });
+    const imgData = canvas.toDataURL("image/jpeg", 0.92);
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+
+    if (format === "jpeg") {
+      const link = document.createElement("a");
+      link.href = imgData;
+      link.download = `relatorio-roleta-${stamp}.jpeg`;
+      link.click();
+      return;
+    }
+
+    // PDF (A4, portrait) — ajusta para caber em uma página
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgW = pageW - 10; // margem
+    const imgH = (canvas.height * imgW) / canvas.width;
+    const posX = (pageW - imgW) / 2;
+    const posY = 5;
+
+    // se imagem for maior que a página, reduz para caber
+    const ratio = Math.min(imgW / canvas.width, (pageH - 10) / canvas.height);
+    const w = canvas.width * ratio;
+    const h = canvas.height * ratio;
+    const x = (pageW - w) / 2;
+    const y = (pageH - h) / 2;
+
+    pdf.addImage(imgData, "JPEG", x, y, w, h);
+    pdf.save(`relatorio-roleta-${stamp}.pdf`);
   };
 
   return (
@@ -225,41 +373,161 @@ function Home() {
               title="% da banca por aposta"
               onChange={(e) => setPercentage(Number(e.target.value))}
             />
-            <select
-              className="span2"
-              onChange={(e) => setStrategy(e.target.value)}
-              title="Escolha uma estratégia"
-              aria-label="Escolha uma estratégia"
-            >
-              <option value="">Escolha uma estratégia</option>
-              <option value="Martingale">Martingale</option>
-              <option value="Fibonacci">Fibonacci</option>
-              <option value="DAlembert">D'Alembert</option>
-            </select>
-            <button className="btn-primary" onClick={handleStart}>
+
+            {/* Estratégia — compacta */}
+            <div className="field span2">
+              <label className="field-label">Estratégia</label>
+              <select
+                className="select"
+                onChange={(e) => setStrategy(e.target.value)}
+                title="Escolha uma estratégia"
+                aria-label="Escolha uma estratégia"
+                defaultValue=""
+              >
+                <option value="" disabled>Escolha</option>
+                <option value="Martingale">Martingale</option>
+                <option value="Fibonacci">Fibonacci</option>
+                <option value="DAlembert">D'Alembert</option>
+              </select>
+            </div>
+
+            {/* Tipo de aposta + Sua escolha */}
+            <div className="bet-box span2" role="group" aria-labelledby="lab-bet">
+              <div className="bet-col">
+                <label id="lab-bet" className="bet-label">Tipo de aposta</label>
+                <div className="seg seg-group">
+                  <button
+                    type="button"
+                    className={`seg-item ${betGroup === "parity" ? "active" : ""}`}
+                    onClick={() => {
+                      setBetGroup("parity");
+                      resetBetChoiceForGroup("parity");
+                    }}
+                  >
+                    Par × Ímpar
+                  </button>
+                  <button
+                    type="button"
+                    className={`seg-item ${betGroup === "color" ? "active" : ""}`}
+                    onClick={() => {
+                      setBetGroup("color");
+                      resetBetChoiceForGroup("color");
+                    }}
+                  >
+                    Vermelho × Preto
+                  </button>
+                  <button
+                    type="button"
+                    className={`seg-item ${betGroup === "range" ? "active" : ""}`}
+                    onClick={() => {
+                      setBetGroup("range");
+                      resetBetChoiceForGroup("range");
+                    }}
+                  >
+                    1–18 × 19–36
+                  </button>
+                </div>
+              </div>
+
+              <div className="bet-col">
+                <label className="bet-label">Sua escolha</label>
+                <div className="seg">
+                  {betOptions[betGroup].map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      className={`seg-item ${betChoice === opt.value ? "active" : ""}`}
+                      onClick={() => setBetChoice(opt.value)}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Estratégia Condicional */}
+            <div className="cond-panel span2">
+              <div className="cond-head">
+                <div className="cond-title">
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={conditionalOn}
+                      onChange={(e) => setConditionalOn(e.target.checked)}
+                    />
+                    <span className="slider" />
+                  </label>
+                  <div>
+                    <div className="cond-title-text">Estratégia Condicional</div>
+                    <div className="cond-sub">Anti-sequência (evita longas sequências do mesmo lado).</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="cond-body">
+                <div className="cond-group">
+                  <div className="cond-label">Limiar</div>
+                  <div className="pill-row">
+                    <label className={`pill ${streakThreshold === 4 ? "active" : ""}`}>
+                      <input
+                        type="radio"
+                        name="limiar"
+                        checked={streakThreshold === 4}
+                        onChange={() => setStreakThreshold(4)}
+                      />
+                      4 saídas iguais
+                    </label>
+                    <label className={`pill ${streakThreshold === 5 ? "active" : ""}`}>
+                      <input
+                        type="radio"
+                        name="limiar"
+                        checked={streakThreshold === 5}
+                        onChange={() => setStreakThreshold(5)}
+                      />
+                      5 saídas iguais
+                    </label>
+                  </div>
+                </div>
+
+                <div className="cond-group">
+                  <div className="cond-label">Ação</div>
+                  <label className="switch-line">
+                    <input
+                      type="checkbox"
+                      checked={autoApplySuggestion}
+                      onChange={(e) => setAutoApplySuggestion(e.target.checked)}
+                    />
+                    <span className="switch-fake" />
+                    <span className="switch-text">Aplicar automaticamente a sugestão</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <button className="btn-cta" onClick={handleStart}>
+              <span className="btn-cta-icon">▶</span>
               Iniciar Estratégia
             </button>
           </div>
 
           <p className="banca">
-            <span className="coin" aria-hidden>
-              🪙
-            </span>
+            <span className="coin" aria-hidden>🪙</span>
             Banca Atual: <strong>R$ {bank.toFixed(2)}</strong>
           </p>
         </div>
       </section>
 
-      {/* Caixa 2 — apenas instruções */}
+      {/* Caixa 2 — instruções */}
       <section className="fifty-helper">
         <div className="fh-head">
           <h3>Opções 50% — Como funciona</h3>
           <div className="fh-meta">
             Escolha <strong>uma</strong> das opções com ~50% de chance:
             <br />
-            <b>Par x Ímpar</b>, <b>Vermelho x Preto</b> ou <b>1–18 x 19–36</b>.
-            Depois aplique a sua estratégia (Martingale, Fibonacci ou
-            D'Alembert) seguindo sua gestão de banca.
+            <b>Par × Ímpar</b>, <b>Vermelho × Preto</b> ou <b>1–18 × 19–36</b>.
+            Depois aplique sua estratégia (Martingale, Fibonacci ou D’Alembert).
           </div>
         </div>
       </section>
@@ -269,71 +537,122 @@ function Home() {
         {started && !finished && (
           <div className="resultado">
             <p>
-              Próxima aposta: <strong>R$ {bet.toFixed(2)}</strong>
+              Próxima aposta: <strong>R$ {bet.toFixed(2)}</strong>{" — "}
+              <span title={betGroupLabel[betGroup]}>{choiceLabel(betGroup, betChoice)}</span>
             </p>
+
+            {/* ALERTA CONDICIONAL */}
+            {streak?.side && (
+              <>
+                <div className={`alert-box ${streak.count >= streakThreshold ? "alert-hot" : ""}`}>
+                  <div className="alert-icon">🔄</div>
+                  <div className="alert-text">
+                    <strong>{streak.count}×</strong> seguidas em{" "}
+                    <b>{choiceLabel(betGroup, streak.side)}</b>
+                    {streak.count >= streakThreshold && (
+                      <span className="alert-suggest">
+                        ⚠️ Atenção! Considere mudar para o lado oposto (limiar: {streakThreshold}).
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {conditionalOn && suggestedChoice && !autoApplySuggestion && (
+                  <div className="alert-action">
+                    Próxima aposta sugerida:{" "}
+                    <b>{choiceLabel(betGroup, suggestedChoice)}</b>
+                    <button
+                      className="btn-apply"
+                      onClick={() => {
+                        setBetChoice(suggestedChoice);
+                        setSuggestedChoice(null);
+                      }}
+                    >
+                      Aplicar agora
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+
             <div className="result-buttons">
-              <button className="btn-win" onClick={() => handleResult("win")}>
-                Vitória
-              </button>
-              <button className="btn-lose" onClick={() => handleResult("loss")}>
-                Derrota
-              </button>
+              <button className="btn-win" onClick={() => handleResult("win")}>Vitória</button>
+              <button className="btn-lose" onClick={() => handleResult("loss")}>Derrota</button>
             </div>
+          </div>
+        )}
+
+        {/* ======= RELATÓRIO + EXPORTAÇÃO ======= */}
+        {started && (
+          <div ref={reportRef}>
+            {/* Cabeçalho do relatório (aparece também junto com o histórico) */}
+            <div className="report-header">
+              <div className="report-title">Relatório da rodada</div>
+              <div className="report-grid">
+                <div><span>Estratégia:</span> <b>{strategy || "—"}</b></div>
+                <div><span>Tipo de aposta:</span> <b>{betGroupLabel[betGroup]}</b></div>
+                <div><span>Jogadas:</span> <b>{step}</b></div>
+                <div><span>Tempo de jogo:</span>{" "}
+                  <b>{formatDuration((finished ? endTime : Date.now()) - (startTime || Date.now()))}</b>
+                </div>
+                <div><span>Banca inicial:</span> <b>{fmt(initialBank || 0)}</b></div>
+                <div><span>Banca atual:</span> <b>{fmt(bank || 0)}</b></div>
+              </div>
+            </div>
+
+            {/* Histórico */}
+            <aside className="history-card" aria-live="polite">
+              <div className="history-head">
+                <h3>Histórico da rodada</h3>
+                <span className="history-meta">
+                  {step} {step === 1 ? "jogada" : "jogadas"}
+                </span>
+              </div>
+              {history.length === 0 ? (
+                <p className="history-empty">Os resultados aparecerão aqui após sua primeira jogada.</p>
+              ) : (
+                <ul className="history-list">
+                  {history.map((item) => (
+                    <li
+                      key={item.id}
+                      className={`history-row ${item.resultado === "Vitória" ? "ok" : "no"}`}
+                    >
+                      <span className="h-col h-col--time">{item.horario}</span>
+                      <span className="h-col h-col--res">{item.resultado}</span>
+                      <span className="h-col h-col--bet">
+                        {fmt(item.aposta)} — {item.alvo}
+                      </span>
+                      <span className="h-col h-col--bank">{fmt(item.bancaApos)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </aside>
+          </div>
+        )}
+
+        {/* Botões de exportação (mostra quando finaliza) */}
+        {finished && (
+          <div className="export-actions">
+            <button className="btn-export" onClick={() => exportReport("pdf")}>
+              Salvar PDF
+            </button>
+            <button className="btn-export outline" onClick={() => exportReport("jpeg")}>
+              Salvar JPEG
+            </button>
           </div>
         )}
 
         {finished && (
           <div className="finalizado">
-            <h2
-              style={{
-                color: bank >= initialBank + goal ? "#16a34a" : "#dc2626",
-              }}
-            >
-              {bank >= initialBank + goal
-                ? "🎉 Meta atingida!"
-                : "🚫 Limite de perda atingido!"}
+            <h2 style={{ color: bank >= initialBank + goal ? "#16a34a" : "#dc2626" }}>
+              {bank >= initialBank + goal ? "🎉 Meta atingida!" : "🚫 Limite de perda atingido!"}
             </h2>
           </div>
         )}
-
-        {started && (
-          <aside className="history-card" aria-live="polite">
-            <div className="history-head">
-              <h3>Histórico da rodada</h3>
-              <span className="history-meta">
-                {step} {step === 1 ? "jogada" : "jogadas"}
-              </span>
-            </div>
-            {history.length === 0 ? (
-              <p className="history-empty">
-                Os resultados aparecerão aqui após sua primeira jogada.
-              </p>
-            ) : (
-              <ul className="history-list">
-                {history.map((item) => (
-                  <li
-                    key={item.id}
-                    className={`history-row ${
-                      item.resultado === "Vitória" ? "ok" : "no"
-                    }`}
-                  >
-                    <span className="h-col h-col--time">{item.horario}</span>
-                    <span className="h-col h-col--res">{item.resultado}</span>
-                    <span className="h-col h-col--bet">
-                      {fmt(item.aposta)}
-                    </span>
-                    <span className="h-col h-col--bank">
-                      {fmt(item.bancaApos)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </aside>
-        )}
       </section>
 
-      {/* Anúncios: topo e rodapé da Home */}
+      {/* Anúncios */}
       <div className="ad ad-top">
         <AdBanner slot="8827435481" style={{ minHeight: 90 }} />
       </div>
@@ -350,9 +669,7 @@ function Shell() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isStrategy = ["/martingale", "/fibonacci", "/dalembert"].includes(
-    location.pathname
-  );
+  const isStrategy = ["/martingale", "/fibonacci", "/dalembert"].includes(location.pathname);
 
   const navRef = useDismissible(() => {
     setMenuOpen(false);
@@ -384,12 +701,7 @@ function Shell() {
   return (
     <div className="app">
       <header className="header">
-        <button
-          className="logo-btn"
-          onClick={onLogoClick}
-          aria-label="Ir para a página inicial"
-          title="Roleta Estratégica"
-        >
+        <button className="logo-btn" onClick={onLogoClick} aria-label="Ir para a página inicial" title="Roleta Estratégica">
           <img src={logo} alt="Roleta Estratégica — logo" className="logo" />
           <span className="logo-text">
             <span className="logo-word logo-top">Roleta</span>
@@ -414,14 +726,9 @@ function Shell() {
           role="navigation"
           aria-label="Principal"
         >
-          <NavLink to="/" onClick={closeMenus}>
-            Início
-          </NavLink>
-          <NavLink to="/sobre" onClick={closeMenus}>
-            Sobre nós
-          </NavLink>
+          <NavLink to="/" onClick={closeMenus}>Início</NavLink>
+          <NavLink to="/sobre" onClick={closeMenus}>Sobre nós</NavLink>
 
-          {/* Submenu: desktop abre por hover/focus-within; mobile por clique (.open) */}
           <div className={`submenu ${subOpen ? "open" : ""}`}>
             <button
               className={`submenu-toggle ${isStrategy ? "active" : ""}`}
@@ -432,15 +739,9 @@ function Shell() {
               Estratégias ▾
             </button>
             <div className="submenu-items" role="menu">
-              <NavLink to="/martingale" onClick={closeMenus} role="menuitem">
-                Martingale
-              </NavLink>
-              <NavLink to="/fibonacci" onClick={closeMenus} role="menuitem">
-                Fibonacci
-              </NavLink>
-              <NavLink to="/dalembert" onClick={closeMenus} role="menuitem">
-                D'Alembert
-              </NavLink>
+              <NavLink to="/martingale" onClick={closeMenus} role="menuitem">Martingale</NavLink>
+              <NavLink to="/fibonacci" onClick={closeMenus} role="menuitem">Fibonacci</NavLink>
+              <NavLink to="/dalembert" onClick={closeMenus} role="menuitem">D'Alembert</NavLink>
             </div>
           </div>
         </nav>
@@ -460,19 +761,13 @@ function Shell() {
             <img src={logo} alt="" className="footer-logo" aria-hidden="true" />
             <div>
               <strong>Roleta Estratégica</strong>
-              <div className="footer-copy">
-                © {new Date().getFullYear()} — Todos os direitos reservados.
-              </div>
+              <div className="footer-copy">© {new Date().getFullYear()} — Todos os direitos reservados.</div>
             </div>
           </div>
 
           <div className="footer-contact">
             <span>Contato:</span>
-            <a
-              href="mailto:contato@roletaestrategicabr.com.br"
-              className="footer-mail"
-              rel="noopener"
-            >
+            <a href="mailto:contato@roletaestrategicabr.com.br" className="footer-mail" rel="noopener">
               contato@roletaestrategicabr.com.br
             </a>
           </div>
@@ -480,39 +775,21 @@ function Shell() {
           <nav className="footer-social" aria-label="Redes sociais">
             <ul className="social-list">
               <li>
-                <a
-                  href="https://www.youtube.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="YouTube"
-                >
-                  {/* YouTube */}
+                <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
                   <svg viewBox="0 0 24 24" className="icon" aria-hidden="true">
                     <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.4 3.5 12 3.5 12 3.5s-7.4 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c2 .6 9.4.6 9.4.6s7.4 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.5v-7L16 12l-6.4 3.5z" />
                   </svg>
                 </a>
               </li>
               <li>
-                <a
-                  href="https://www.instagram.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                >
-                  {/* Instagram */}
+                <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                   <svg viewBox="0 0 24 24" className="icon" aria-hidden="true">
                     <path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.9.3 2.4.5.6.2 1 .5 1.5 1 .5.5.8.9 1 1.5.2.5.4 1.2.5 2.4.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.9-.5 2.4-.2.6-.5 1-1 1.5-.5.5-.9.8-1.5 1-.5.2-1.2.4-2.4.5-1.3.1-1.7.1-4.9.1s-3.5 0-4.7-.1c-1.2-.1-1.9-.3-2.4-.5-.6-.2-1-.5-1.5-1-.5-.5-.8-.9-1-1.5-.2-.5-.4-1.2-.5-2.4C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.9.5-2.4.2-.6.5-1 1-1.5.5-.5.9-.8 1.5-1 .5-.2 1.2-.4 2.4-.5C8.4 2.2 8.8 2.2 12 2.2zm0 2.8a5.2 5.2 0 1 1 0 10.4 5.2 5.2 0 0 1 0-10.4zm0 1.8a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm5.7-3.1a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z" />
                   </svg>
                 </a>
               </li>
               <li>
-                <a
-                  href="https://t.me/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Telegram"
-                >
-                  {/* Telegram */}
+                <a href="https://t.me/" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
                   <svg viewBox="0 0 24 24" className="icon" aria-hidden="true">
                     <path d="M9.04 15.52 8.7 19.9c.61 0 .87-.26 1.19-.57l2.86-2.74 5.93 4.34c1.09.6 1.86.29 2.16-1.01l3.91-18.3c.35-1.64-.59-2.28-1.65-1.89L1.26 9.77C-.33 10.39-.31 11.23.97 11.62l5.92 1.85L19.6 5.38c.59-.38 1.13-.17.69.21L9.04 15.52z" />
                   </svg>
@@ -533,7 +810,6 @@ function MaybeRouter({ children }) {
 export default function App() {
   return (
     <MaybeRouter>
-      {/* Título/meta já são atualizados no Shell */}
       <Shell />
     </MaybeRouter>
   );
