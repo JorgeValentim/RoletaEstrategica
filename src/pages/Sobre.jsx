@@ -25,7 +25,9 @@ export default function Sobre() {
         </div>
       </section>
 
+      {/*
       <div className="page-ads-top"><AdBanner slot="8827435481" style={{ minHeight: 90 }} /></div>
+        */}
 
       {/* CONTEÚDO */}
       <div className="page-wrap">
@@ -51,8 +53,10 @@ export default function Sobre() {
         <div className="callout">
           <strong>Jogo responsável:</strong> conteúdo destinado a maiores de 18 anos. Não use apostas como renda principal.
         </div>
-
+        {/*
         <div className="page-ads-bottom"><AdBanner slot="8827435481" style={{ minHeight: 90 }} /></div>
+        */}
+
       </div>
     </div>
   );

@@ -25,8 +25,9 @@ export default function Martingale() {
         </div>
       </section>
 
+      {/*
       <div className="page-ads-top"><AdBanner slot="8827435481" style={{ minHeight: 90 }} /></div>
-
+      */}
       {/* CONTEÚDO */}
       <div className="page-wrap">
         <h2 className="section-title">A Estratégia Martingale</h2>
@@ -72,9 +73,10 @@ export default function Martingale() {
         <div className="callout">
           <strong>Jogo responsável:</strong> use a Martingale com disciplina. Defina limites e não aposte mais do que pode perder.
         </div>
-
+        {/* 
         <div className="page-ads-bottom"><AdBanner slot="8827435481" style={{ minHeight: 90 }} /></div>
-      </div>
+        */}
+        </div>
     </div>
   );
 }

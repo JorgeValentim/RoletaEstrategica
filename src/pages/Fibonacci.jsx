@@ -25,8 +25,9 @@ export default function Fibonacci() {
         </div>
       </section>
 
+      {/* 
       <div className="page-ads-top"><AdBanner slot="8827435481" style={{ minHeight: 90 }} /></div>
-
+      */}
       {/* CONTEÚDO */}
       <div className="page-wrap">
         <h2 className="section-title">Como funciona</h2>
@@ -73,9 +74,10 @@ export default function Fibonacci() {
         <div className="callout">
           <strong>Jogue com responsabilidade:</strong> a Fibonacci auxilia no controle, mas não garante lucros.
         </div>
-
+        {/*
         <div className="page-ads-bottom"><AdBanner slot="8827435481" style={{ minHeight: 90 }} /></div>
-      </div>
+        */}
+        </div>
     </div>
   );
 }

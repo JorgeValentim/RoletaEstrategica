@@ -15,6 +15,9 @@ import DAlembert from "./pages/DAlembert";
 import logo from "./assets/icon.png";
 import "./App.css";
 import AdBanner from "./components/AdBanner";
+import AdBannerAdsterra from "./components/AdBannerAdsterra";
+
+
 
 // bibliotecas para exportação
 import html2canvas from "html2canvas";
@@ -652,13 +655,15 @@ function Home() {
         )}
       </section>
 
-      {/* Anúncios */}
-      <div className="ad ad-top">
-        <AdBanner slot="8827435481" style={{ minHeight: 90 }} />
-      </div>
+        
+      {/* Anúncios 
       <div className="ad ad-bottom">
         <AdBanner slot="8827435481" style={{ minHeight: 90 }} />
       </div>
+      
+      */}
+      
+
     </main>
   );
 }
@@ -754,6 +759,12 @@ function Shell() {
         <Route path="/fibonacci" element={<Fibonacci />} />
         <Route path="/dalembert" element={<DAlembert />} />
       </Routes>
+
+      <div className="ad ad-top">
+        <AdBannerAdsterra />
+      </div>
+
+
 
       <footer className="footer" role="contentinfo">
         <div className="footer-inner">

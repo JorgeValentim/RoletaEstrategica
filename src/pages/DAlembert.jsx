@@ -25,8 +25,9 @@ export default function DAlembert() {
         </div>
       </section>
 
+      {/* 
       <div className="page-ads-top"><AdBanner slot="8827435481" style={{ minHeight: 90 }} /></div>
-
+      */}
       {/* CONTEÚDO */}
       <div className="page-wrap">
         <h2 className="section-title">Como aplicar</h2>
@@ -73,9 +74,10 @@ export default function DAlembert() {
         <div className="callout">
           <strong>Responsabilidade sempre:</strong> D'Alembert não elimina riscos — use metas e limites.
         </div>
-
+        {/* 
         <div className="page-ads-bottom"><AdBanner slot="8827435481" style={{ minHeight: 90 }} /></div>
-      </div>
+        */}
+        </div>
     </div>
   );
 }
