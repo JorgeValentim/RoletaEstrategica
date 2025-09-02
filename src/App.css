@@ -380,3 +380,28 @@ a:hover .icon{ opacity:1; transform: translateY(-1px); }
 }
 
 
+
+
+/* ===== Botão inline de troca (alerta condicional) ===== */
+.alert-cta-inline{
+  display:inline-flex;
+  margin-left:10px;
+  vertical-align:middle;
+}
+.btn-swap{
+  padding:8px 12px;
+  border:0;
+  border-radius:12px;
+  background:#0ea5e9; /* azul discreto */
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(2,8,23,.12);
+  transition:filter .2s ease, transform .06s ease;
+  line-height:1;
+}
+.btn-swap:hover{ filter:brightness(1.05); }
+.btn-swap:active{ transform: translateY(1px); }
+@media (max-width: 520px){
+  .alert-cta-inline{ display:block; margin:8px 0 0 0; }
+}

@@ -17,8 +17,6 @@ import "./App.css";
 import AdBanner from "./components/AdBanner";
 import AdBannerAdsterra from "./components/AdBannerAdsterra";
 
-
-
 // bibliotecas para exportação
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -119,6 +117,8 @@ function Home() {
   function inferOutcomeSide(group, chosenValue, result) {
     const opp = oppositeMap[group][chosenValue];
     return result === "win" ? chosenValue : opp;
+    // win  -> streak.side = betChoice
+    // loss -> streak.side = opposite(betChoice)
   }
 
   const [isCompact, setIsCompact] = useState(false);
@@ -195,24 +195,26 @@ function Home() {
     setEndTime(null);
   };
 
-  // Aplica/sugere após o React consolidar o estado
+  // 🔧 SUGESTÃO/APLICAÇÃO: quando o limiar é atingido, sugerir SEMPRE o oposto do que estou apostando agora
+  // Isso faz o "Aplicar agora" trocar corretamente tanto após vitórias quanto após derrotas.
   useEffect(() => {
     if (!conditionalOn) return;
     if (!streak?.side || streak?.count < streakThreshold) return;
 
-    const oppositeSide = oppositeMap[streak.group][streak.side];
+    const swapSide = oppositeMap[betGroup][betChoice]; // ← oposto da escolha atual
     if (autoApplySuggestion) {
-      setBetChoice(oppositeSide);
+      setBetChoice(swapSide);
       setSuggestedChoice(null);
+      setStreak({ group: betGroup, side: null, count: 0 }); // evitar reaparecer logo em seguida
     } else {
-      setSuggestedChoice(oppositeSide);
+      setSuggestedChoice(swapSide);
     }
-  }, [streak, conditionalOn, streakThreshold, autoApplySuggestion]);
+  }, [streak, conditionalOn, streakThreshold, autoApplySuggestion, betGroup, betChoice]);
 
   const handleResult = (result) => {
     if (finished) return;
 
-    // 1) Anti-sequência
+    // 1) Anti-sequência: atualiza streak com base no RESULTADO
     const outcomeSide = inferOutcomeSide(betGroup, betChoice, result);
     const nextCount =
       streak.group === betGroup && streak.side === outcomeSide
@@ -308,10 +310,8 @@ function Home() {
     const pageH = pdf.internal.pageSize.getHeight();
     const imgW = pageW - 10; // margem
     const imgH = (canvas.height * imgW) / canvas.width;
-    const posX = (pageW - imgW) / 2;
-    const posY = 5;
 
-    // se imagem for maior que a página, reduz para caber
+    // centraliza
     const ratio = Math.min(imgW / canvas.width, (pageH - 10) / canvas.height);
     const w = canvas.width * ratio;
     const h = canvas.height * ratio;
@@ -569,6 +569,7 @@ function Home() {
                       onClick={() => {
                         setBetChoice(suggestedChoice);
                         setSuggestedChoice(null);
+                        setStreak({ group: betGroup, side: null, count: 0 }); // reset após aplicar manualmente
                       }}
                     >
                       Aplicar agora
@@ -655,15 +656,11 @@ function Home() {
         )}
       </section>
 
-        
       {/* Anúncios 
       <div className="ad ad-bottom">
         <AdBanner slot="8827435481" style={{ minHeight: 90 }} />
       </div>
-      
       */}
-      
-
     </main>
   );
 }
@@ -764,8 +761,6 @@ function Shell() {
         <AdBannerAdsterra />
       </div>
 
-
-
       <footer className="footer" role="contentinfo">
         <div className="footer-inner">
           <div className="footer-brand">
@@ -776,15 +771,19 @@ function Shell() {
             </div>
           </div>
 
-          <div className="footer-contact">
-            <span>Contato:</span>
-            <a href="mailto:contato@roletaestrategicabr.com.br" className="footer-mail" rel="noopener">
-              contato@roletaestrategicabr.com.br
-            </a>
-          </div>
-
+          {/* Ícones à direita (inclui e-mail) */}
           <nav className="footer-social" aria-label="Redes sociais">
             <ul className="social-list">
+              {/* E-mail */}
+              <li>
+                <a href="mailto:contato@roletaestrategicabr.com.br" target="_blank" rel="noopener noreferrer" aria-label="E-mail">
+                  <svg viewBox="0 0 24 24" className="icon" aria-hidden="true">
+                    <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
+                  </svg>
+                </a>
+              </li>
+
+              {/* YouTube */}
               <li>
                 <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
                   <svg viewBox="0 0 24 24" className="icon" aria-hidden="true">
@@ -792,13 +791,17 @@ function Shell() {
                   </svg>
                 </a>
               </li>
+
+              {/* Instagram */}
               <li>
                 <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                   <svg viewBox="0 0 24 24" className="icon" aria-hidden="true">
-                    <path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.9.3 2.4.5.6.2 1 .5 1.5 1 .5.5.8.9 1 1.5.2.5.4 1.2.5 2.4.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.9-.5 2.4-.2.6-.5 1-1 1.5-.5.5-.9.8-1.5 1-.5.2-1.2.4-2.4.5-1.3.1-1.7.1-4.9.1s-3.5 0-4.7-.1c-1.2-.1-1.9-.3-2.4-.5-.6-.2-1-.5-1.5-1-.5-.5-.8-.9-1-1.5-.2-.5-.4-1.2-.5-2.4C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.9.5-2.4.2-.6.5-1 1-1.5.5-.5.9-.8 1.5-1 .5-.2 1.2-.4 2.4-.5C8.4 2.2 8.8 2.2 12 2.2zm0 2.8a5.2 5.2 0 1 1 0 10.4 5.2 5.2 0 0 1 0-10.4zm0 1.8a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm5.7-3.1a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z" />
+                    <path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm10 2c1.7 0 3 1.3 3 3v10c0 1.7-1.3 3-3 3H7c-1.7 0-3-1.3-3-3V7c0-1.7 1.3-3 3-3h10zm-5 3a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6zm4.5-2.9a1.1 1.1 0 100 2.2 1.1 1.1 0 000-2.2z"/>
                   </svg>
                 </a>
               </li>
+
+              {/* Telegram */}
               <li>
                 <a href="https://t.me/" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
                   <svg viewBox="0 0 24 24" className="icon" aria-hidden="true">
